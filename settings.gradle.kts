@@ -13,3 +13,5 @@ plugins {
 rootProject.name = "ddd-exercises"
 include("domain")
 include("application")
+include("cqrs")
+include("acl")
