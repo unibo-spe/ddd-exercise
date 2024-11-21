@@ -3,4 +3,5 @@
     "extends": [
       "github>DanySK/renovate-config"
     ]
+    "assignees": [ "gciatto" ]
 }
