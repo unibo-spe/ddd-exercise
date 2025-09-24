@@ -1,3 +1,3 @@
 dependencies {
-    api("io.reactivex.rxjava3:rxjava:3.1.11")
+    api("io.reactivex.rxjava3:rxjava:3.1.12")
 }
