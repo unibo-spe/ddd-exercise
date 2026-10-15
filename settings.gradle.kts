@@ -12,7 +12,9 @@ plugins {
 
 rootProject.name = "ddd-exercises"
 include("domain")
+project(":domain").projectDir = file("exercise1/domain")
 include("application")
+project(":application").projectDir = file("exercise1/application")
 include("cqrs")
 include("acl")
 include("di")

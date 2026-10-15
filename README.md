@@ -5,8 +5,8 @@ Exercises for the [Domain Driven Design](https://unibo-spe.github.io/10-ddd/) le
 - Branch `exercise`: the starting point
 - Branch `master`: a possible solution
 
-Each exercise lives in its own Gradle sub-project (`domain` + `application` for Exercise 1, `cqrs`, `acl`, `di`).
-On `master`, the `infrastructure` sub-project contains an adapter retrieving actual exchange rates from the [Frankfurter API](https://frankfurter.dev).
+Each exercise lives in its own Gradle sub-project (`exercise1/domain` + `exercise1/application` for Exercise 1, `cqrs`, `acl`, `di`).
+On `master`, the `exercise1/infrastructure` sub-project contains an adapter retrieving actual exchange rates from the [Frankfurter API](https://frankfurter.dev).
 Run all tests with `./gradlew test`.
 
 ## Exercise 1 -- Modelling the Simple Store
