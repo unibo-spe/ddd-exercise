@@ -1,26 +1,37 @@
 package it.unibo.ddd.cqrs.impl;
 
+import it.unibo.ddd.Variation;
 import it.unibo.ddd.cqrs.CounterReader;
 import it.unibo.ddd.cqrs.CounterWriter;
 
-import java.util.Date;
+import java.time.Instant;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
+/**
+ * Read model kept up to date by the variations published by the write model.
+ * Its internal representation (a projection) is optimised for queries.
+ */
 public class CounterReaderImpl implements CounterReader {
+    private final NavigableMap<Instant, Long> valuesOverTime = new TreeMap<>();
 
-    private final CounterWriter counterWriter;
+    public CounterReaderImpl(CounterWriter writer) {
+        writer.getVariations().forEach(this::apply); // replay past events...
+        writer.onVariation().subscribe(this::apply); // ... then follow new ones
+    }
 
-    public CounterReaderImpl(CounterWriter counterWriter) {
-        this.counterWriter = counterWriter;
+    private void apply(Variation variation) {
+        valuesOverTime.put(variation.when(), variation.after());
     }
 
     @Override
-    public long getValue(Date at) {
-        var value = 0L;
-        for (final var variation : counterWriter.getVariations()) {
-            if (variation.before() != value) continue;
-            if (variation.when().after(at)) return value;
-            value = variation.after();
-        }
-        return value;
+    public long getValue() {
+        return valuesOverTime.isEmpty() ? 0L : valuesOverTime.lastEntry().getValue();
+    }
+
+    @Override
+    public long getValue(Instant at) {
+        final var entry = valuesOverTime.floorEntry(at);
+        return entry == null ? 0L : entry.getValue();
     }
 }

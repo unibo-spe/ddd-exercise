@@ -1,17 +1,14 @@
 package it.unibo.ddd.exercises.products;
 
-import it.unibo.ddd.exercises.money.Money;
+import java.util.Optional;
 
-import java.util.function.Predicate;
-
+/** Repository of {@link Product}s. */
 public interface Warehouse {
     Iterable<Product> getAllProducts();
 
-    Product findProductById(ProductID id);
+    Optional<Product> findProductById(ProductID id);
 
-    Iterable<Product> findProductByDescription(String description);
-
-    Iterable<Product> findProductByPrice(Predicate<Money> predicate);
+    Iterable<Product> findProductsByType(String type);
 
     void addNewProduct(Product product);
 

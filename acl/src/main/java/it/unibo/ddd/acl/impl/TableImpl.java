@@ -75,6 +75,7 @@ public class TableImpl implements Table {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Table other)) return false;
+        if (!Objects.equals(getHeaders(), other.getHeaders())) return false;
         final var i = getEntries().iterator();
         final var j = other.getEntries().iterator();
         while (i.hasNext() && j.hasNext()) {

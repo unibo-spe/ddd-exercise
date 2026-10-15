@@ -1,7 +1,6 @@
 package it.unibo.ddd.exercises.orders;
 
-import java.math.BigInteger;
-
+/** Value object: orders are identified by a serial number. */
 public interface OrderID {
-    BigInteger getSerialNumber();
+    long getSerialNumber();
 }

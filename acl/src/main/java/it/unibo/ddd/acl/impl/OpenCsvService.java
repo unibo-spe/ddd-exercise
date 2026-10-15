@@ -1,12 +1,17 @@
 package it.unibo.ddd.acl.impl;
 
-import com.opencsv.*;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.CSVWriterBuilder;
+import com.opencsv.RFC4180ParserBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 import it.unibo.ddd.acl.CsvService;
 import it.unibo.ddd.acl.Row;
 import it.unibo.ddd.acl.Table;
 
-import java.io.*;
-import java.util.LinkedList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 // https://www.baeldung.com/opencsv
@@ -29,48 +34,29 @@ public class OpenCsvService implements CsvService {
     }
 
     @Override
-    public char getCommentChar() {
-        throw new IllegalStateException("This service does not support comments");
-    }
-
-    private CSVParser buildParser() {
-        return new CSVParserBuilder()
+    public void write(Path path, Table table) throws IOException {
+        try (var writer = new CSVWriterBuilder(Files.newBufferedWriter(path))
                 .withSeparator(separator)
                 .withQuoteChar(quote)
-                .build();
-    }
-
-    private CSVWriter buildWriter(File path) throws IOException {
-        return new CSVWriter(new FileWriter(path), getSeparatorChar(), getQuoteChar());
-    }
-
-    private String[] toArray(Row row) {
-        return row.items().toArray(new String[0]);
-    }
-
-    @Override
-    public void write(File path, Table table) throws IOException {
-        try (CSVWriter writer = buildWriter(path)) {
-            table.forEach(row -> writer.writeNext(toArray(row)));
+                .build()) {
+            table.forEach(row -> writer.writeNext(row.items().toArray(String[]::new)));
         }
     }
 
-    private CSVReader buildReader(File path) throws FileNotFoundException {
-        return new CSVReaderBuilder(new FileReader(path))
-                .withSkipLines(0)
-                .withCSVParser(buildParser())
-                .build();
-    }
-
     @Override
-    public Table read(File path) throws IOException {
-        try (CSVReader reader = buildReader(path)) {
-            List<Row> rows = new LinkedList<>();
+    public Table read(Path path) throws IOException {
+        // RFC 4180 parser: quotes are escaped by doubling them, as Apache Commons CSV does
+        var parser = new RFC4180ParserBuilder().withSeparator(separator).withQuoteChar(quote).build();
+        try (var reader = new CSVReaderBuilder(Files.newBufferedReader(path)).withCSVParser(parser).build()) {
+            List<Row> rows = new ArrayList<>();
             String[] line;
             while ((line = reader.readNext()) != null) {
                 rows.add(Row.of(line));
             }
             return Table.withHeaders(rows);
+        } catch (CsvValidationException e) {
+            // library-specific exceptions must not cross the anti-corruption layer either
+            throw new IOException(e);
         }
     }
 }

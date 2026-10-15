@@ -1,10 +1,8 @@
 package it.unibo.ddd.exercises.orders;
 
-import it.unibo.ddd.exercises.customers.Customer;
-
-import java.util.Date;
+import it.unibo.ddd.exercises.customers.CustomerID;
 
 public interface OrderFactory {
-    Order createOrderFor(Customer customer, Date when);
-    Order createNowOrderFor(Customer customer);
+    /** Creates an empty order, with a fresh serial number, performed now. */
+    Order newOrder(CustomerID customer);
 }

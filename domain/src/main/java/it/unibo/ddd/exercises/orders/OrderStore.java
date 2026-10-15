@@ -1,22 +1,20 @@
 package it.unibo.ddd.exercises.orders;
 
-import it.unibo.ddd.exercises.customers.Customer;
+import it.unibo.ddd.exercises.customers.CustomerID;
 
-import java.util.Date;
-import java.util.function.Predicate;
+import java.util.Optional;
 
+/** Repository of {@link Order}s. */
 public interface OrderStore {
     Iterable<Order> getAllOrders();
 
-    Order findOrderById(OrderID id);
+    Optional<Order> findOrderById(OrderID id);
 
-    Iterable<Order> findOrderByCustomer(Predicate<Customer> predicate);
-
-    Iterable<Order> findOrderByTime(Predicate<Date> predicate);
+    Iterable<Order> findOrdersByCustomer(CustomerID customer);
 
     void addNewOrder(Order order);
 
     void updateOrder(Order order);
 
-    void RemoveOrder(Order order);
+    void removeOrder(Order order);
 }
