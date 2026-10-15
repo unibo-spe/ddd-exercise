@@ -4,6 +4,7 @@ import it.unibo.ddd.exercises.customers.impl.CustomerFactoryImpl;
 import it.unibo.ddd.exercises.customers.impl.InMemoryCustomerRegistry;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,6 +22,29 @@ class CustomersTest {
     void factoryRejectsMalformedIdentifiers() {
         assertThrows(IllegalArgumentException.class, () -> factory.taxCode("not a tax code"));
         assertThrows(IllegalArgumentException.class, () -> factory.vatNumber("123"));
+    }
+
+    @Test
+    void factoryComputesTaxCodes() {
+        var mario = factory.computeTaxCode("Mario", "Rossi", LocalDate.of(1980, 1, 1), Gender.MALE, "Roma");
+        assertEquals(factory.taxCode("RSSMRA80A01H501U"), mario);
+        // names with >= 4 consonants skip the 2nd one, women get +40 on the day, accents are ignored
+        var maria = factory.computeTaxCode("Gianfranca", "Lucà", LocalDate.of(1995, 12, 31), Gender.FEMALE, "Castro (LE)");
+        assertEquals("LCUGFR95T71M261", maria.getValue().substring(0, 15));
+    }
+
+    @Test
+    void factoryRejectsUnknownOrAmbiguousBirthPlaces() {
+        var birthDate = LocalDate.of(1980, 1, 1);
+        assertThrows(IllegalArgumentException.class, () -> factory.computeTaxCode("Mario", "Rossi", birthDate, Gender.MALE, "Atlantide"));
+        assertThrows(IllegalArgumentException.class, () -> factory.computeTaxCode("Mario", "Rossi", birthDate, Gender.MALE, "Castro"));
+    }
+
+    @Test
+    void personsCanBeCreatedOutOfTheirPersonalData() {
+        var mario = factory.newCustomerPerson("Mario", "Rossi", LocalDate.of(1980, 1, 1), Gender.MALE, "Roma", "mario@rossi.it");
+        assertEquals("RSSMRA80A01H501U", mario.getID().getValue());
+        assertEquals("Mario Rossi", mario.getName());
     }
 
     @Test
