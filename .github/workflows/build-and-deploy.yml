@@ -18,12 +18,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-2025, macos-14, ubuntu-24.04 ]
+        os: [ windows-2025, macos-15, ubuntu-24.04 ]
     runs-on: ${{ matrix.os }}
     concurrency:
       group: build-${{ github.workflow }}-${{ matrix.os }}-${{ github.event.number || github.ref }}
       cancel-in-progress: true
     steps:
       - name: Checkout
-        uses: DanySK/action-checkout@0.2.22
-      - uses: DanySK/build-check-deploy-gradle-action@3.5.11
+        uses: DanySK/action-checkout@0.2.31
+      - uses: DanySK/build-check-deploy-gradle-action@4.0.49

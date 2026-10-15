@@ -2,19 +2,21 @@ package it.unibo.ddd;
 
 import it.unibo.ddd.impl.VariationImpl;
 
-import java.util.Date;
+import java.time.Instant;
 
+/** Domain event: the counter changed from {@link #before()} to {@link #after()} at {@link #when()}. */
 public interface Variation {
     long before();
-    long after();
-    default long delta() { return after() - before(); }
-    Date when();
 
-    public static Variation of(long before, long after, Date when) {
-        return new VariationImpl(before, after, when);
+    long after();
+
+    default long delta() {
+        return after() - before();
     }
 
-    public static Variation of(long before, long after) {
-        return of(before, after, new Date());
+    Instant when();
+
+    static Variation of(long before, long after, Instant when) {
+        return new VariationImpl(before, after, when);
     }
 }

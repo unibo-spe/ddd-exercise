@@ -1,5 +1,13 @@
 # DDD Exercises
 
+Exercises for the [Domain Driven Design](https://unibo-spe.github.io/10-ddd/) lecture.
+
+- Branch `exercise`: the starting point
+- Branch `master`: a possible solution
+
+Each exercise lives in its own Gradle sub-project (`domain` + `application` for Exercise 1, `cqrs`, `acl`).
+Run all tests with `./gradlew test`.
+
 ## Exercise 1 -- Modelling the Simple Store
 
 A simple domain keeping track of: _customers_, _products_, and _orders_.
@@ -9,15 +17,19 @@ A simple domain keeping track of: _customers_, _products_, and _orders_.
 1. Read informal domain description
 2. Identify the main domain concepts composing the ubiquitous language
 3. Model the domain as Java types (classes or interfaces)
-    - the model should include entities, value objects, repositories, factories, and services
+    - the model should include entities, value objects, aggregates, repositories, factories, services, and domain events
 4. Structure the Java types according to some module structure compliant with hexagonal architecture
-    - i.e. put interfaces in either the `domain` or the `application` module
+    - i.e. put code into either the `domain` or the `application` module
 5. Sketch tests and, then, implementation for at least one
     - entity
-    - value object 
+    - value object
     - factory
     - repository
-    - value object
+    - service
+6. Wire services, repositories, and factories via _constructor injection_
+    - write at least one _integration test_ injecting an in-memory repository
+
+> The `customers` package is already modelled, as an example.
 
 ### Domain description
 
@@ -49,14 +61,14 @@ A simple domain keeping track of: _customers_, _products_, and _orders_.
 
 - Currencies are represented by a name, a symbol and an acronym
     - e.g. Euro, EUR, €
-    - e.g. USA Dollar, USD, $
+    - e.g. US Dollar, USD, $
 
 - Exchange rates keep track of the conversion rate
     + from a source currency
     + to a destination currency
-    + in a particular moment
+    + at a particular moment
 
-- Information about exchange rates can be attained from the Internet
+- Information about exchange rates can be obtained from the Internet
 
 - We can compute the price of each product, in any currency, at any moment
 
@@ -64,8 +76,8 @@ A simple domain keeping track of: _customers_, _products_, and _orders_.
 
 - Orders are identified by a serial number
 
-- They keep track of the many products ordered by a customer
-    * and the amount of copies ordered for each product
+- They keep track of the products ordered by a customer
+    * and the number of copies ordered for each product
 
 - Also, orders keep track of when they have been performed
 
@@ -74,20 +86,22 @@ A simple domain keeping track of: _customers_, _products_, and _orders_.
 - When a new order is registered, many actions should be performed in reaction
 
 - It must be possible to compute the actual total price of an order
-    * in a particular moment, using a particular currency
+    * at a particular moment, using a particular currency
 
 ## Exercise 2 -- Trivial CQRS
 
 A very simple repository: the `Counter`.
 It contains 1 `long` number, initially set to 0.
-The value may change arbitrarily.
+The value may be read or changed arbitrarily.
 Whenever the value changes, a new domain event is published, of type `Variation`.
-However, the repository only memorise the _current_ value of the counter.
+However, the repository only memorises the _current_ value of the counter.
 
-### TODO 
+### TODO
 
 > 1. Switch the design towards __event sourcing__, by memorising variations instead of snapshots.
-> 2. Implement the CQRS pattern
+> 2. Implement the CQRS pattern by splitting the repository into 2 parts:
+>     - a __write-model__ for storing variations
+>     - a __read-model__ for retrieving a snapshot of the counter's value at a given moment
 
 In practice:
 1. provide implementations for the `CounterReader` and `CounterWriter` interfaces
@@ -100,7 +114,7 @@ Functionalities for CSV import/export are missing and need to be implemented via
 At least two libraries are available:
 - [Apache Commons CSV](https://commons.apache.org/proper/commons-csv/)
     * Guide here: <https://www.baeldung.com/apache-commons-csv>
-- [OpenCSV](http://opencsv.sourceforge.net/)
+- [OpenCSV](https://opencsv.sourceforge.net/)
     * Guide here: <https://www.baeldung.com/opencsv>
 
 ### TODO

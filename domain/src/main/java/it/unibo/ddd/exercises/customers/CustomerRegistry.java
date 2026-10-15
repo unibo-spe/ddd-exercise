@@ -1,13 +1,16 @@
 package it.unibo.ddd.exercises.customers;
 
+import java.util.Optional;
+
+/** Repository of {@link Customer}s. */
 public interface CustomerRegistry {
     Iterable<Customer> getAllCustomers();
 
-    Customer findCustomerById(CustomerID id);
+    Optional<Customer> findCustomerById(CustomerID id);
 
-    Iterable<Customer> findCustomerByName(String name);
+    Iterable<Customer> findCustomersByName(String name);
 
-    Iterable<Customer> findCustomerByEmail(String email);
+    Iterable<Customer> findCustomersByEmail(String email);
 
     void addNewCustomer(Customer customer);
 

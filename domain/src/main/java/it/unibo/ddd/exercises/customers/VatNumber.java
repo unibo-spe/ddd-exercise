@@ -1,8 +1,7 @@
 package it.unibo.ddd.exercises.customers;
 
-import java.math.BigInteger;
-
+/** Value object identifying a company, i.e. 11 digits (leading zeros matter). */
 public interface VatNumber extends CustomerID {
     @Override
-    BigInteger getValue();
+    String getValue();
 }

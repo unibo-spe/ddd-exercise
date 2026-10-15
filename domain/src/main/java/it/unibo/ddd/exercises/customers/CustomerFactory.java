@@ -1,13 +1,12 @@
 package it.unibo.ddd.exercises.customers;
 
-import java.util.Date;
-
+/** Factory: the only way to create customers and their identifiers, so that invariants are checked once. */
 public interface CustomerFactory {
-    TaxCode ComputeTaxCode(String name, String surname, Date birthDate, String birthPlace);
+    TaxCode taxCode(String value);
 
-    Customer NewCustomerPerson(String name, String surname, Date birthDate, String birthPlace, String email);
+    VatNumber vatNumber(String value);
 
-    Customer NewCustomerPerson(TaxCode code, String fullName, String email);
+    Customer newCustomerPerson(TaxCode code, String fullName, String email);
 
-    Customer NewCustomerCompany(VatNumber number, String fullName, String email);
+    Customer newCustomerCompany(VatNumber number, String fullName, String email);
 }
