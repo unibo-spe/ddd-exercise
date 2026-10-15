@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+// TODO: once ParkingLot supports dependency injection, rewrite these tests with test doubles (cf. step 4 of di/walkthrough.md)
+//       they should run in milliseconds, in any order, and assert exact fees
 class ParkingLotTest {
     @Test
     void shortStaysAreFree() throws InterruptedException {

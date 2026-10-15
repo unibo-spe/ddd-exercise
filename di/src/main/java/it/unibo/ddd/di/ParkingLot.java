@@ -8,6 +8,9 @@ import java.util.Map;
 
 /**
  * The first 15 minutes are free, then each started hour costs 1.50 EUR.
+ * <p>
+ * TODO: this class works, but it is hard to test: find its hidden dependencies (cf. steps 0-1 of di/walkthrough.md),
+ *       then let it receive them via its constructor (cf. steps 2-3)
  */
 public class ParkingLot {
     static final Duration FREE_TIME = Duration.ofMinutes(15);
