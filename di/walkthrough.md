@@ -1,70 +1,57 @@
 # Exercise 4 -- Walkthrough
 
-A suggested order for refactoring the `InvoiceService` towards dependency injection.
+A suggested order for refactoring the `ParkingLot` towards dependency injection.
 A possible solution is on branch `master`.
 
 ## Step 0 -- Feel the pain
 
-1. Run `./gradlew :di:test --rerun-tasks` twice, then look into your temporary directory (`java.io.tmpdir`): what is `invoices.csv`?
-2. Uncomment the assertion on the invoice number: why does it fail from the second run on?
-3. Disconnect from the Internet, and run the tests again.
-4. Try to assert the exact total of an invoice in USD.
+1. Run `./gradlew :di:test --rerun-tasks`: why does it take so long?
+2. Try to write a test checking that a 2-hour stay costs 3.00 EUR. How long would it take to run?
+3. In `sameCarCannotEnterTwice`, the car never exits. Use the same plate in another test: does the result depend on the order in which tests are run?
 
 Write down every problem: each one points to a _hidden dependency_.
 
 ## Step 1 -- Find the hidden dependencies
 
-Go through `InvoiceService` line by line, looking for things it _creates_ or _reaches_ by itself, instead of receiving them:
+Go through `ParkingLot` line by line, looking for things it _reaches_ by itself, instead of receiving them:
 
 | Where | Dependency | Why it hurts tests |
 |-------|------------|--------------------|
-| `LocalDate.now()` | the system clock | results change every day |
+| `Instant.now()` | the system clock | tests must _wait_ for time to pass |
 | ... | ... | ... |
 
-Look for: `new` of non-value objects, `getInstance()`, static methods with side effects, I/O (network, files, console).
+You should find 3 of them.
+On the contrary, `fee(Duration)` is not a dependency: it is a _pure function_, always giving the same output for the same input.
 
-## Step 2 -- Keep a safety net
+## Step 2 -- Extract one dependency at a time
 
-Do not delete the existing tests yet: they are weak, but they tell you whether the refactoring broke something.
-Run them after each of the next steps.
+For each dependency: (1) find or define an interface describing _what_ the parking lot needs, (2) move the current code into an implementation of it, (3) let the parking lot use the interface.
+Run the old tests after each step, to check that nothing broke.
 
-## Step 3 -- Extract one dependency at a time
+1. __the clock__: no new interface is needed, `java.time.Clock` already is one (use `clock.instant()`)
+2. __the display__: an interface with one method, e.g. `void show(String message)`, implemented by `System.out::println`
+3. __the parked cars__: an interface for registering and removing entries, implemented by a class wrapping a _non-static_ map
 
-For each dependency: (1) define an interface describing _what_ the service needs, (2) move the current code into an implementation of it, (3) let the service use the interface.
-Start from the easy ones:
+## Step 3 -- Constructor injection and composition root
 
-1. __the clock__: no new interface is needed, `java.time.Clock` already is one (use `LocalDate.now(clock)`)
-2. __notifications__: an interface with one method, whose implementation prints on the console
-3. __exchange rates__: an interface like `BigDecimal rate(String from, String to, LocalDate date)`, implemented by moving `fetchRate` into a Frankfurter-based class receiving `HttpClient` and endpoint URI via its constructor
-4. __the archive__: turn the singleton into an interface, plus a file-based implementation receiving the file `Path` via its constructor (and an in-memory implementation, for tests)
+- `ParkingLot` receives all its dependencies via its constructor, and stores them in `final` fields
+- `Main` creates the implementations and passes them to the parking lot: it is the _composition root_, the only place mentioning implementation classes
 
-## Step 4 -- Constructor injection and composition root
+> __Checkpoint__: `ParkingLot` contains no `now()`, no `static` field holding state, no `System.out`.
 
-- `InvoiceService` receives all its dependencies via its constructor, and stores them in `final` fields
-- write an `ApplicationFactory`, with one method per interface, deciding which implementation to use and how to configure it: it should be the _only_ class mentioning implementation classes
-- `Main` asks the factory for an `InvoiceService`
+## Step 4 -- Rewrite the tests
 
-> __Checkpoint__: `InvoiceService` contains no `new` (apart from the `Invoice`), no `now()`, no `getInstance()`, no `System.out`.
+Replace each dependency with a _test double_:
 
-## Step 5 -- Rewrite the tests
+- a _stub_ clock, telling the time you want: `mock(Clock.class)`, then `when(clock.instant()).thenReturn(t0, t0.plus(Duration.ofHours(2)))` returns `t0` at the first call, and 2 hours later at the second one
+- a _mock_ display: `mock(Display.class)`, then `verify(display).show("Welcome, AB123CD")`
+- a _fake_ registry: the in-memory implementation, a fresh one per test
 
-__Unit tests__ replace every dependency with a _test double_, so they can assert exact values:
+Now test the boundaries of the fee rule: 15 minutes (free), 16 minutes (1.50), 60 minutes (1.50), 61 minutes (3.00).
 
-- a _stub_ for exchange rates (a lambda always returning `1.10`)
-- a _fake_ archive (in memory)
-- a _mock_ notifier: `mock(Notifier.class)`, then `verify(notifier).invoiceIssued(expected)` (Mockito is already among the test dependencies)
-- a fixed clock: `Clock.fixed(Instant.parse("2026-01-15T10:00:00Z"), ZoneOffset.UTC)`
+> __Checkpoint__: tests run in milliseconds, in any order, and assert exact fees.
 
-Now you can assert that the first invoice has number 1, total `23.65 USD` for a `21.50 EUR` cart, and due date `2026-02-14`.
+## Step 5 -- Reflect
 
-__Integration tests__ use _real_ implementations, yet lightweight and isolated ones:
-
-- a file archive on a `@TempDir` file: check that numbering goes on after creating a new service on the same file (i.e. a restart)
-- the Frankfurter implementation against a fake server on localhost (`com.sun.net.httpserver.HttpServer`), checking the requested URL too
-
-> __Checkpoint__: tests pass offline, at any time of any day, any number of times.
-
-## Step 6 -- Reflect
-
-Compare the old and the new `InvoiceService`: the business logic is the same, only the _wiring_ moved out.
-What would you need to change to archive invoices in a database, or to send emails instead of printing?
+Compare the old and the new `ParkingLot`: the business logic is the same, only the _wiring_ moved out.
+What would you need to change to store entries in a database, or to show messages on an actual display?
