@@ -6,6 +6,7 @@ Exercises for the [Domain Driven Design](https://unibo-spe.github.io/10-ddd/) le
 - Branch `master`: a possible solution
 
 Each exercise lives in its own Gradle sub-project (`domain` + `application` for Exercise 1, `cqrs`, `acl`).
+On `master`, the `infrastructure` sub-project contains an adapter retrieving actual exchange rates from the [Frankfurter API](https://frankfurter.dev).
 Run all tests with `./gradlew test`.
 
 ## Exercise 1 -- Modelling the Simple Store
@@ -40,6 +41,8 @@ A simple domain keeping track of: _customers_, _products_, and _orders_.
 - Companies are identified by a VAT number
 
 - Persons are identified by tax codes
+    * which can be computed out of name, surname, birth date, gender, and birth place
+    * cf. <https://it.wikipedia.org/wiki/Codice_fiscale>
 
 - In any case a name and email are recorded for each customer
 
