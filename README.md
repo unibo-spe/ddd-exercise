@@ -135,24 +135,20 @@ At least two libraries are available:
 
 ## Exercise 4 -- Dependency Injection
 
-The `InvoiceService` issues invoices for carts whose prices are expressed in EUR:
-- totals are converted into the customer's currency, using today's exchange rate (retrieved from the [Frankfurter API](https://frankfurter.dev))
-- invoices are numbered progressively, and archived into a file
-- payment is due within 30 days
-- customers are notified (i.e. a message is printed on the console)
+A `ParkingLot` lets cars `enter` and `exit`, by plate:
+- the first 15 minutes are free, then each started hour costs 1.50 EUR
+- the same car cannot enter twice
+- drivers are greeted on a display (i.e. the console)
 
-The service works, but it is __hard to test__: it _creates_ or _reaches_ by itself everything it needs.
+The class works, but it is __hard to test__: it _reaches_ by itself everything it needs.
 
 ### TODO
 
-1. Run the tests, more than once, and observe what makes them _slow_, _flaky_, or _weak_
-2. Identify the __hidden dependencies__ of `InvoiceService`
-    - i.e. objects it creates via `new`, singletons, static methods with side effects, ...
+1. Run the tests, and observe what makes them _slow_ or _weak_
+2. Identify the __hidden dependencies__ of `ParkingLot`
+    - i.e. static methods with side effects, static state, I/O, ...
     - hint: the system clock is a dependency too (cf. `java.time.Clock`)
-3. Introduce one __interface__ per dependency, and move the current behaviour into __implementations__
-4. Let `InvoiceService` receive its dependencies via __constructor injection__
-5. Write a __composition root__ (e.g. `ApplicationFactory`), and use it in `Main`
-6. Rewrite the tests:
-    - __unit tests__ injecting _test doubles_ (stubs, fakes, mocks via [Mockito](https://site.mockito.org/)), asserting _exact_ values
-    - at least one __integration test__ injecting real yet lightweight implementations
-        * e.g. a temporary file, a fake HTTP server on localhost (cf. `com.sun.net.httpserver.HttpServer`)
+3. Introduce one __interface__ per dependency (unless the JDK already provides one), and move the current behaviour into __implementations__
+4. Let `ParkingLot` receive its dependencies via __constructor injection__
+5. Let `Main` be the __composition root__
+6. Rewrite the tests with _test doubles_ (stubs, fakes, mocks via [Mockito](https://site.mockito.org/)), asserting _exact_ fees, without waiting
