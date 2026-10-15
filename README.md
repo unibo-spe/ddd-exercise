@@ -9,6 +9,9 @@ Each exercise lives in its own Gradle sub-project (`exercise1/domain` + `exercis
 On `master`, the `exercise1/infrastructure` sub-project contains an adapter retrieving actual exchange rates from the [Frankfurter API](https://frankfurter.dev).
 Run all tests with `./gradlew test`.
 
+Each exercise folder contains a `walkthrough.md`, suggesting how to address the exercise step by step:
+[Exercise 1](exercise1/walkthrough.md), [Exercise 2](cqrs/walkthrough.md), [Exercise 3](acl/walkthrough.md), [Exercise 4](di/walkthrough.md).
+
 ## Exercise 1 -- Modelling the Simple Store
 
 A simple domain keeping track of: _customers_, _products_, and _orders_.
