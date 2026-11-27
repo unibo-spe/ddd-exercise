@@ -1,3 +1,3 @@
 dependencies {
-    testImplementation("org.mockito:mockito-core:5.24.0")
+    testImplementation("org.mockito:mockito-core:5.25.0")
 }
